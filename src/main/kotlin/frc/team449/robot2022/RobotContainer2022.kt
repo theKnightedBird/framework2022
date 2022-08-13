@@ -90,7 +90,6 @@ class RobotContainer2022() : RobotContainerBase() {
         encoderChannel,
         offset,
         DriveConstants.TURN_UPR,
-        DriveConstants.TURN_GEARING
       )
     )
 
