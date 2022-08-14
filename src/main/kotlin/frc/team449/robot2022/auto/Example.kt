@@ -19,7 +19,7 @@ class Example(private val trajFileName: String, private val maxAcc: Double, priv
       PIDController(1.0, .0, .0),
       PIDController(1.0, .0, .0),
       ProfiledPIDController(
-        1.5,
+        25.0,
         .0,
         .0,
         TrapezoidProfile.Constraints(maxVel, maxAcc)
