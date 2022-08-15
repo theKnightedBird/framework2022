@@ -89,7 +89,7 @@ class RobotContainer2022() : RobotContainerBase() {
       encCreator = AbsoluteEncoder.creator(
         encoderChannel,
         offset,
-        DriveConstants.TURN_UPR,
+        DriveConstants.TURN_UPR
       )
     )
 
@@ -162,7 +162,7 @@ class RobotContainer2022() : RobotContainerBase() {
 
   private fun addRoutines(): SendableChooser<AutoRoutine> {
     val chooser = SendableChooser<AutoRoutine>()
-    val exampleAuto = Example("wishes", 1.7, 1.7, drive)
+    val exampleAuto = Example("Example", 2.0, 2.0, drive)
     chooser.setDefaultOption("Example Swerve Auto", exampleAuto.routine())
 
     return chooser

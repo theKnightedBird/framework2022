@@ -1,10 +1,12 @@
 package frc.team449.control.auto
 
 import com.pathplanner.lib.PathPlannerTrajectory
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState
 import edu.wpi.first.math.controller.HolonomicDriveController
 import edu.wpi.first.math.controller.RamseteController
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
+import edu.wpi.first.math.trajectory.Trajectory
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
@@ -21,10 +23,10 @@ import frc.team449.control.holonomic.HolonomicDrive
  * @param resetPose Whether to reset pose to initial pose of trajectory when initialized
  */
 class AutoDriveCommand<T : DriveSubsystem>(
-  val drivetrain: T,
-  val trajectory: PathPlannerTrajectory,
-  val controller: (Pose2d, PathPlannerTrajectory.PathPlannerState) -> ChassisSpeeds,
-  val resetPose: Boolean
+  private val drivetrain: T,
+  private val trajectory: Trajectory,
+  val controller: (Pose2d, PathPlannerState) -> ChassisSpeeds,
+  private val resetPose: Boolean
 ) : CommandBase() {
   private var startTime = 0.0
 
@@ -45,7 +47,7 @@ class AutoDriveCommand<T : DriveSubsystem>(
 
   override fun execute() {
     drivetrain.set(
-      controller(drivetrain.pose, trajectory.sample(Timer.getFPGATimestamp() - startTime) as PathPlannerTrajectory.PathPlannerState)
+      controller(drivetrain.pose, trajectory.sample(Timer.getFPGATimestamp() - startTime) as PathPlannerState)
     )
   }
 
