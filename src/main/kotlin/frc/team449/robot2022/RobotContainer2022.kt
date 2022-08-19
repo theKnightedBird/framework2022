@@ -156,8 +156,8 @@ class RobotContainer2022() : RobotContainerBase() {
           TrapezoidProfile.Constraints(.0, .0)
         )
       },
-      SimpleMotorFeedforward(.0, .0, .0),
-      SimpleMotorFeedforward(.0, .0, .0)
+      SimpleMotorFeedforward(DriveConstants.DRIVE_KS, DriveConstants.DRIVE_KV, DriveConstants.DRIVE_KA),
+      SimpleMotorFeedforward(DriveConstants.TURN_KS, DriveConstants.TURN_KV, DriveConstants.TURN_KA)
     )
 
   private fun addRoutines(): SendableChooser<AutoRoutine> {

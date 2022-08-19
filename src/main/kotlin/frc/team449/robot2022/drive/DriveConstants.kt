@@ -15,8 +15,6 @@ object DriveConstants {
   const val TURN_MOTOR_BL = 7
   const val TURN_MOTOR_BR = 3
 
-  /** External encoders for driving motors */
-
   /** Absolute (Duty Cycle) encoder channels */
   const val TURN_ENC_CHAN_FL = 0
   const val TURN_ENC_CHAN_FR = 3
@@ -28,6 +26,16 @@ object DriveConstants {
   const val TURN_ENC_OFFSET_FR = 0.0
   const val TURN_ENC_OFFSET_BL = 0.0
   const val TURN_ENC_OFFSET_BR = 0.0
+
+  /** FF values for turning each module */
+  const val TURN_KS = 0.039835
+  const val TURN_KV = 0.078855
+  const val TURN_KA = 0.027521
+
+  /** FF values for driving each module */
+  const val DRIVE_KS = 0.17227
+  const val DRIVE_KV = 2.7582
+  const val DRIVE_KA = 0.2595
 
   val DRIVE_WHEEL_RADIUS = Units.inchesToMeters(2.0)
   const val DRIVE_GEARING = 5.86
