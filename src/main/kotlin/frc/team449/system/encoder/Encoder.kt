@@ -1,6 +1,8 @@
 package frc.team449.system.encoder
 
+import edu.wpi.first.wpilibj.Timer
 import io.github.oblarg.oblog.Loggable
+import io.github.oblarg.oblog.annotations.Log
 
 /**
  * A wrapper around encoders. Allows resetting encoders to a position.
@@ -16,7 +18,8 @@ abstract class Encoder(
   val name: String,
   encoderCPR: Int,
   unitPerRotation: Double,
-  gearing: Double
+  gearing: Double,
+  private val pollTime: Double
 ) : Loggable {
   /**
    * Factor to multiply by to turn native encoder units into meters or whatever units are actually
@@ -36,14 +39,19 @@ abstract class Encoder(
   /** Simulated position set by SimEncoderController */
   private var simVel = 0.0
 
+  /** Used to cache the velocity, because we want to update only when dt >= 20ms **/
+  private var cachedVel = Double.NaN
+  private var cachedTime = Double.NaN
+
   /** Current position in encoder's units */
   protected abstract fun getPositionNative(): Double
 
   /** Current velocity in encoder's units */
-  protected abstract fun getVelocityNative(): Double
+  protected abstract fun pollVelocityNative(): Double
 
   /** Position in meters or whatever unit you set */
   val position: Double
+    @Log
     get() {
       val posUnits = if (simulated) simPos else this.getPositionDirect()
       return positionOffset + posUnits
@@ -51,8 +59,9 @@ abstract class Encoder(
 
   /** Velocity in meters per second or whatever unit you set */
   val velocity: Double
+    @Log
     get() {
-      return if (simulated) simVel else this.getVelocityNative() * encoderToUnit
+      return if (simulated) simVel else getVelocityNative() * encoderToUnit
     }
 
   /**
@@ -67,6 +76,18 @@ abstract class Encoder(
    */
   private fun getPositionDirect() = this.getPositionNative() * encoderToUnit
 
+  /**
+   * Get the native velocity in units every loopTime
+   */
+  private fun getVelocityNative(): Double {
+    val currTime = Timer.getFPGATimestamp()
+    // update if it has been at least 20 ms since the last update
+    if (cachedTime.isNaN() || currTime - cachedTime >= pollTime) {
+      cachedVel = this.pollVelocityNative()
+      cachedTime = currTime
+    }
+    return cachedVel
+  }
   override fun configureLogName() = this.name
 
   /**

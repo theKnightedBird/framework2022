@@ -1,7 +1,6 @@
 package frc.team449.control.holonomic
 
 import edu.wpi.first.math.controller.PIDController
-import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.controller.SimpleMotorFeedforward
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
@@ -16,11 +15,14 @@ import io.github.oblarg.oblog.annotations.Log
 
 open class SwerveDrive(
   private val modules: List<SwerveModule>,
-  private val ahrs: AHRS,
+  val ahrs: AHRS,
   override val maxLinearSpeed: Double,
   override val maxRotSpeed: Double
 ) : SubsystemBase(), HolonomicDrive {
-
+  init {
+    // Zero out the gyro
+    ahrs.reset()
+  }
   private val kinematics = SwerveDriveKinematics(
     *this.modules
       .map { it.location }.toTypedArray()
@@ -28,18 +30,22 @@ open class SwerveDrive(
   private val odometry = SwerveDriveOdometry(this.kinematics, ahrs.heading)
 
   @Log.ToString
-  private var desiredSpeeds = ChassisSpeeds()
+  var desiredSpeeds = ChassisSpeeds()
 
   override fun set(desiredSpeeds: ChassisSpeeds) {
     this.desiredSpeeds = desiredSpeeds
   }
 
   override val heading: Rotation2d
-    get() { return ahrs.heading }
+    @Log.ToString
+    get() {
+      return ahrs.heading
+    }
 
   override var pose: Pose2d
+    @Log.ToString
     get() {
-      return this.odometry.getPoseMeters()
+      return this.odometry.poseMeters
     }
     set(pose) {
       this.odometry.resetPosition(pose, ahrs.heading)
@@ -50,14 +56,9 @@ open class SwerveDrive(
   }
 
   override fun periodic() {
-    this.odometry.update(
-      ahrs.heading,
-      *this.modules
-        .map { it.state }.toTypedArray()
-    )
-
-    var desiredModuleStates =
+    val desiredModuleStates =
       this.kinematics.toSwerveModuleStates(this.desiredSpeeds)
+
     SwerveDriveKinematics.desaturateWheelSpeeds(
       desiredModuleStates,
       this.maxLinearSpeed
@@ -66,6 +67,15 @@ open class SwerveDrive(
     for (i in this.modules.indices) {
       this.modules[i].state = desiredModuleStates[i]
     }
+
+    this.odometry.update(
+      ahrs.heading,
+      *this.modules
+        .map { it.state }.toTypedArray()
+    )
+
+    for (module in modules)
+      module.update()
   }
 
   companion object {
@@ -105,7 +115,7 @@ open class SwerveDrive(
       backRightTurnMotor: WrappedMotor,
       frontLeftLocation: Translation2d,
       driveMotorController: () -> PIDController,
-      turnMotorController: () -> ProfiledPIDController,
+      turnMotorController: () -> PIDController,
       driveFeedforward: SimpleMotorFeedforward,
       turnFeedforward: SimpleMotorFeedforward
     ): SwerveDrive {
@@ -128,7 +138,7 @@ open class SwerveDrive(
           turnMotorController(),
           driveFeedforward,
           turnFeedforward,
-          frontLeftLocation.rotateBy(Rotation2d.fromDegrees(90.0))
+          frontLeftLocation.rotateBy(Rotation2d.fromDegrees(-90.0))
         ),
         SwerveModule.create(
           "BLModule",
@@ -138,7 +148,7 @@ open class SwerveDrive(
           turnMotorController(),
           driveFeedforward,
           turnFeedforward,
-          frontLeftLocation.rotateBy(Rotation2d.fromDegrees(-90.0))
+          frontLeftLocation.rotateBy(Rotation2d.fromDegrees(90.0))
         ),
         SwerveModule.create(
           "BRModule",
@@ -157,6 +167,13 @@ open class SwerveDrive(
         maxLinearSpeed,
         maxRotSpeed
       )
+    }
+
+    /**
+     * @return the sim version of this drive
+     */
+    fun simOf(swerve: SwerveDrive): SwerveSim {
+      return SwerveSim(swerve.modules, swerve.ahrs, swerve.maxLinearSpeed, swerve.maxRotSpeed)
     }
   }
 }

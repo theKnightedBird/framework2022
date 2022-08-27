@@ -15,8 +15,9 @@ import kotlin.math.abs
 class BackupEncoder(
   private val primary: Encoder,
   private val fallback: Encoder,
-  private val velThreshold: Double
-) : Encoder(primary.configureLogName(), 1, 1.0, 1.0) {
+  private val velThreshold: Double,
+  pollTime: Double = .02
+) : Encoder(primary.configureLogName(), 1, 1.0, 1.0, pollTime) {
 
   /** Whether the primary encoder's stopped working */
   @Log private var useFallback = false
@@ -29,12 +30,12 @@ class BackupEncoder(
     }
   }
 
-  protected override fun getVelocityNative(): Double {
+  protected override fun pollVelocityNative(): Double {
     val fallbackVel = fallback.velocity
     return if (useFallback) {
       fallbackVel
     } else {
-      var primaryVel = primary.velocity
+      val primaryVel = primary.velocity
       if (primaryVel == 0.0 && abs(fallbackVel) > velThreshold) {
         this.useFallback = true
         fallbackVel
@@ -48,7 +49,7 @@ class BackupEncoder(
     fun <T : MotorController> creator(
       primaryCreator: EncoderCreator<T>,
       fallbackCreator: EncoderCreator<T>,
-      velThreshold: Double
+      velThreshold: Double,
     ): EncoderCreator<T> = EncoderCreator {
         name, motor, inverted ->
       BackupEncoder(
