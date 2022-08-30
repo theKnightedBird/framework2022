@@ -60,14 +60,6 @@ class DifferentialDrive(
   override fun set(desiredSpeeds: ChassisSpeeds) {
     wheelSpeeds = kinematics.toWheelSpeeds(desiredSpeeds)
     wheelSpeeds.desaturate(this.maxLinearSpeed)
-    val leftVel = wheelSpeeds.leftMetersPerSecond
-    val rightVel = wheelSpeeds.rightMetersPerSecond
-    leftLeader.setVoltage(
-      feedforward.calculate(leftVel) + leftPID.calculate(leftLeader.velocity, leftVel)
-    )
-    rightLeader.setVoltage(
-      feedforward.calculate(rightVel) + rightPID.calculate(rightLeader.velocity, rightVel)
-    )
   }
 
   @get:Log.ToString
@@ -90,6 +82,16 @@ class DifferentialDrive(
 
   /** Periodically update the odometry */
   override fun periodic() {
+
+    val leftVel = wheelSpeeds.leftMetersPerSecond
+    val rightVel = wheelSpeeds.rightMetersPerSecond
+    leftLeader.setVoltage(
+      feedforward.calculate(leftVel) + leftPID.calculate(leftLeader.velocity, leftVel)
+    )
+    rightLeader.setVoltage(
+      feedforward.calculate(rightVel) + rightPID.calculate(rightLeader.velocity, rightVel)
+    )
+
     this.odometry.update(this.heading, this.leftLeader.position, this.rightLeader.position)
   }
 
