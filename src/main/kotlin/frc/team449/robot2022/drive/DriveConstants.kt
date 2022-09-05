@@ -53,6 +53,7 @@ object DriveConstants {
   const val TURN_UPR = 2 * Math.PI * 1
   const val MAX_LINEAR_SPEED = 2.0
   const val MAX_ROT_SPEED = 2.0
+  const val MAX_ATTAINABLE_SPEED = 4.2672 // 14 fps
 
   /** PID gains for rotating the robot */
   const val ROTATE_KP = 1.0

@@ -11,6 +11,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import frc.team449.robot2022.drive.DriveConstants
 import frc.team449.system.AHRS
 import frc.team449.system.motor.WrappedMotor
 import io.github.oblarg.oblog.annotations.Log
@@ -32,7 +33,7 @@ open class SwerveDrive(
     turnPID.setTolerance(2 * PI / 180) // Tolerance of 2 degrees for the navx noise
   }
 
-  private val kinematics = SwerveDriveKinematics(
+  val kinematics = SwerveDriveKinematics(
     *this.modules
       .map { it.location }.toTypedArray()
   )
@@ -40,7 +41,7 @@ open class SwerveDrive(
   private var desiredHeading = ahrs.heading
   private var cachedDriveStraight = driveStraight()
   private var prevTime = Double.NaN
-  private val odometry = SwerveDriveOdometry(this.kinematics, ahrs.heading)
+  private val odometry = SwerveDriveOdometry(this.kinematics, -ahrs.heading)
 
   @Log.ToString
   var desiredSpeeds = ChassisSpeeds()
@@ -64,15 +65,11 @@ open class SwerveDrive(
       return this.odometry.poseMeters
     }
     set(newPose) {
-      this.odometry.resetPosition(newPose, ahrs.heading)
+      this.odometry.resetPosition(newPose, heading)
     }
 
   override fun stop() {
     this.set(ChassisSpeeds(0.0, 0.0, 0.0))
-  }
-
-  fun getKinematics(): SwerveDriveKinematics {
-    return this.kinematics
   }
 
   override fun periodic() {
@@ -99,7 +96,7 @@ open class SwerveDrive(
 
     SwerveDriveKinematics.desaturateWheelSpeeds(
       desiredModuleStates,
-      this.maxLinearSpeed
+      DriveConstants.MAX_ATTAINABLE_SPEED
     )
 
     for (i in this.modules.indices) {
@@ -107,7 +104,7 @@ open class SwerveDrive(
     }
 
     this.odometry.update(
-      -ahrs.heading,
+      heading,
       *this.modules
         .map { it.state }.toTypedArray()
     )
