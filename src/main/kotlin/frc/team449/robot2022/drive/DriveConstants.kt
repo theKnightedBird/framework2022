@@ -54,6 +54,11 @@ object DriveConstants {
   const val MAX_LINEAR_SPEED = 2.0
   const val MAX_ROT_SPEED = 2.0
 
+  /** PID gains for rotating the robot */
+  const val ROTATE_KP = 1.0
+  const val ROTATE_KI = .0
+  const val ROTATE_KD = .0
+
   /** Location of the front left module */
   val FRONT_LEFT_LOC = Translation2d(
     Units.inchesToMeters(24.0) / 2,

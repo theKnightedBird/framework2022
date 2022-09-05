@@ -41,6 +41,6 @@ class Example(private val trajFileName: String, private val maxAcc: Double, priv
         )
       )
     )
-    return AutoRoutine("Example Auto", traj, cmd)
+    return AutoRoutine("Example Auto", cmd)
   }
 }
