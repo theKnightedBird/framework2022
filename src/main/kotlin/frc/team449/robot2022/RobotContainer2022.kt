@@ -49,7 +49,7 @@ class RobotContainer2022() : RobotContainerBase() {
     { if (abs(driveController.leftX) < .08) .0 else driveController.leftX },
     { if (abs(driveController.getRawAxis(4)) < .02) .0 else driveController.getRawAxis(4) },
     SlewRateLimiter(1.5),
-    2.5,
+    DriveConstants.MAX_LINEAR_ACCEL,
     true
   )
 
@@ -162,7 +162,8 @@ class RobotContainer2022() : RobotContainerBase() {
 
   private fun addRoutines(): SendableChooser<AutoRoutine> {
     val chooser = SendableChooser<AutoRoutine>()
-    val exampleAuto = Example("Example", 2.0, 2.0, drive)
+    val exampleAuto = Example("wishes", 2.0, 2.0, drive)
+    chooser.setDefaultOption("example auto", exampleAuto.routine())
     return chooser
   }
 

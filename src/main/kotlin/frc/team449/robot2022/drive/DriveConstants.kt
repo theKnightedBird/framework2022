@@ -51,8 +51,10 @@ object DriveConstants {
   const val DRIVE_GEARING = 5.86
   const val DRIVE_UPR = 0.3021211527151539
   const val TURN_UPR = 2 * Math.PI * 1
-  const val MAX_LINEAR_SPEED = 2.0
-  const val MAX_ROT_SPEED = 2.0
+  const val MAX_LINEAR_SPEED = 4.27
+  const val MAX_ROT_SPEED = 7.5
+  const val MAX_LINEAR_ACCEL = 2.5
+  const val MAX_ROT_ACCEL = 4.0
 
   /** PID gains for rotating the robot */
   const val ROTATE_KP = 1.0
