@@ -27,6 +27,7 @@ open class SwerveDrive(
   init {
     // Zero out the gyro
     ahrs.calibrate()
+    // set up turning PID
     turnPID.enableContinuousInput(-PI, PI)
     turnPID.setTolerance(2 * PI / 180) // Tolerance of 2 degrees for the navx noise
   }
@@ -218,7 +219,7 @@ open class SwerveDrive(
      * @return the sim version of this drive
      */
     fun simOf(swerve: SwerveDrive): SwerveSim {
-      return SwerveSim(swerve.modules, swerve.ahrs, swerve.maxLinearSpeed, swerve.maxRotSpeed)
+      return SwerveSim(swerve.modules, swerve.ahrs, swerve.maxLinearSpeed, swerve.turnPID, swerve.maxRotSpeed)
     }
   }
 }

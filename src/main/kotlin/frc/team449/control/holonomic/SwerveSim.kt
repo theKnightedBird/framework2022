@@ -1,5 +1,6 @@
 package frc.team449.control.holonomic
 
+import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.Timer.getFPGATimestamp
 import frc.team449.system.AHRS
@@ -8,8 +9,9 @@ class SwerveSim(
   modules: List<SwerveModule>,
   ahrs: AHRS,
   maxLinearSpeed: Double,
+  turnPID: PIDController,
   maxRotSpeed: Double
-) : SwerveDrive(modules, ahrs, maxLinearSpeed, maxRotSpeed) {
+) : SwerveDrive(modules, ahrs, turnPID, maxLinearSpeed, maxRotSpeed) {
   private var lastTime = getFPGATimestamp()
 
   override var heading = Rotation2d(0.0)
