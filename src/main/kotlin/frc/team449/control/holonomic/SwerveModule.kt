@@ -58,6 +58,7 @@ open class SwerveModule constructor(
     desiredAngle = turningMotor.position - PI
     desiredSpeed = 0.0
   }
+
   override fun configureLogName() = this.name
 
   fun update() {
@@ -110,6 +111,33 @@ open class SwerveModule constructor(
           location
         )
       }
+    }
+  }
+}
+
+/**
+ * A SwerveModuleState that also takes in acceleration so we can apply it to our modules.
+ * WPILib kinematics does not factor in acceleration which causes drifting from our testing
+ * */
+class ModuleState(
+  var speed: Double = .0,
+  var acceleration: Double = .0,
+  var angle: Rotation2d = Rotation2d()
+) {
+
+  fun optimize(
+    desiredState: ModuleState,
+    currentAngle: Rotation2d?
+  ): ModuleState? {
+    val delta = desiredState.angle.minus(currentAngle)
+    return if (abs(delta.degrees) > 90.0) {
+      ModuleState(
+        -desiredState.speed,
+        -desiredState.acceleration,
+        desiredState.angle.rotateBy(Rotation2d.fromDegrees(180.0))
+      )
+    } else {
+      ModuleState(desiredState.speed, desiredState.acceleration, desiredState.angle)
     }
   }
 }

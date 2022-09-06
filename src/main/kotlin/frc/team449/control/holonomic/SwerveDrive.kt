@@ -69,7 +69,7 @@ open class SwerveDrive(
     }
 
   override fun stop() {
-    this.set(ChassisSpeeds(0.0, 0.0, 0.0))
+    this.set(ChassisSpeeds())
   }
 
   override fun periodic() {
@@ -139,6 +139,7 @@ open class SwerveDrive(
      *     the modules
      * @param driveFeedforward Driving feedforward for all the modules
      * @param turnFeedforward Turning feedforward for all the modules
+     * @param driveStraight turn on=true or off=false function to command robot to maintain heading
      */
     fun squareDrive(
       ahrs: AHRS,
