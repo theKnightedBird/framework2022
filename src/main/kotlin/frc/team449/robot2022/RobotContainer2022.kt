@@ -48,7 +48,7 @@ class RobotContainer2022() : RobotContainerBase() {
     { if (abs(driveController.leftY) < .08) .0 else driveController.leftY },
     { if (abs(driveController.leftX) < .08) .0 else driveController.leftX },
     { if (abs(driveController.getRawAxis(4)) < .02) .0 else driveController.getRawAxis(4) },
-    SlewRateLimiter(1.5),
+    SlewRateLimiter(2.0),
     2.5,
     true
   )
@@ -158,7 +158,7 @@ class RobotContainer2022() : RobotContainerBase() {
       },
       SimpleMotorFeedforward(DriveConstants.DRIVE_KS, DriveConstants.DRIVE_KV, DriveConstants.DRIVE_KA),
       SimpleMotorFeedforward(DriveConstants.TURN_KS, DriveConstants.TURN_KV, DriveConstants.TURN_KA),
-      { false } // Turn drive straight on or off
+      { true } // Turn drive straight on or off
     )
 
   private fun addRoutines(): SendableChooser<AutoRoutine> {

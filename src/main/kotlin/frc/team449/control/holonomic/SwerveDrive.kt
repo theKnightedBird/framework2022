@@ -16,6 +16,7 @@ import frc.team449.system.AHRS
 import frc.team449.system.motor.WrappedMotor
 import io.github.oblarg.oblog.annotations.Log
 import kotlin.math.PI
+import kotlin.math.abs
 
 open class SwerveDrive(
   private val modules: List<SwerveModule>,
@@ -23,7 +24,7 @@ open class SwerveDrive(
   private val turnPID: PIDController,
   override val maxLinearSpeed: Double,
   override val maxRotSpeed: Double,
-  val driveStraight: () -> Boolean = { true }
+  var driveStraight: () -> Boolean = { true }
 ) : SubsystemBase(), HolonomicDrive {
   init {
     // Zero out the gyro
@@ -81,12 +82,14 @@ open class SwerveDrive(
 
     val dt = currTime - prevTime
 
-    if (driveStraight()) {
+    // If we want to drive straight and the chassis is not trying to turn, then don't let it
+    if (driveStraight() && abs(desiredSpeeds.omegaRadiansPerSecond) <= 0.001) { // mess with this threshold
       if (!cachedDriveStraight) desiredHeading = heading
       desiredHeading = desiredHeading.plus(Rotation2d(desiredSpeeds.omegaRadiansPerSecond * dt))
+      val adjustedOmegaPerSecond = turnPID.calculate(heading.radians, desiredHeading.radians)
       desiredSpeeds.omegaRadiansPerSecond =
         clamp(
-          turnPID.calculate(heading.radians, desiredHeading.radians),
+          adjustedOmegaPerSecond,
           -maxRotSpeed, maxRotSpeed
         )
     }

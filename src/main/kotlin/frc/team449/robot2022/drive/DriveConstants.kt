@@ -43,7 +43,7 @@ object DriveConstants {
   const val DRIVE_KA = 0.2595
 
   /** PID gains for driving each module*/
-  const val DRIVE_KP = 0.09
+  const val DRIVE_KP = 0.05
   const val DRIVE_KI = 0.0
   const val DRIVE_KD = 0.0
 
@@ -56,7 +56,7 @@ object DriveConstants {
   const val MAX_ATTAINABLE_SPEED = 4.2672 // 14 fps
 
   /** PID gains for rotating the robot */
-  const val ROTATE_KP = 1.0
+  const val ROTATE_KP = .0005
   const val ROTATE_KI = .0
   const val ROTATE_KD = .0
 
