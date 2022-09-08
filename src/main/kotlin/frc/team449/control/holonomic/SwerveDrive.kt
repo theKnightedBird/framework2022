@@ -16,7 +16,6 @@ import frc.team449.system.AHRS
 import frc.team449.system.motor.WrappedMotor
 import io.github.oblarg.oblog.annotations.Log
 import kotlin.math.PI
-import kotlin.math.abs
 
 open class SwerveDrive(
   private val modules: List<SwerveModule>,
@@ -29,6 +28,7 @@ open class SwerveDrive(
   init {
     // Zero out the gyro
     ahrs.calibrate()
+    ahrs.reset()
     // set up turning PID
     turnPID.enableContinuousInput(-PI, PI)
     turnPID.setTolerance(2 * PI / 180) // Tolerance of 2 degrees for the navx noise
@@ -38,8 +38,9 @@ open class SwerveDrive(
     *this.modules
       .map { it.location }.toTypedArray()
   )
-
+  @Log.ToString
   private var desiredHeading = ahrs.heading
+  private var cachedDesiredHeading = ahrs.heading
   private var cachedDriveStraight = driveStraight()
   private var prevTime = Double.NaN
   private val odometry = SwerveDriveOdometry(this.kinematics, -ahrs.heading)
@@ -83,10 +84,10 @@ open class SwerveDrive(
     val dt = currTime - prevTime
 
     // If we want to drive straight and the chassis is not trying to turn, then don't let it
-    if (driveStraight() && abs(desiredSpeeds.omegaRadiansPerSecond) <= 0.001) { // mess with this threshold
+    if (driveStraight()) { // mess with this threshold
       if (!cachedDriveStraight) desiredHeading = heading
       desiredHeading = desiredHeading.plus(Rotation2d(desiredSpeeds.omegaRadiansPerSecond * dt))
-      val adjustedOmegaPerSecond = turnPID.calculate(heading.radians, desiredHeading.radians)
+      val adjustedOmegaPerSecond = turnPID.calculate(heading.radians, cachedDesiredHeading.radians)
       desiredSpeeds.omegaRadiansPerSecond =
         clamp(
           adjustedOmegaPerSecond,
@@ -115,6 +116,7 @@ open class SwerveDrive(
     for (module in modules)
       module.update()
 
+    cachedDesiredHeading = desiredHeading
     cachedDriveStraight = driveStraight()
     prevTime = currTime
   }
@@ -203,7 +205,7 @@ open class SwerveDrive(
           turnMotorController(),
           driveFeedforward,
           turnFeedforward,
-          frontLeftLocation.rotateBy(Rotation2d.fromDegrees(180.0))
+          frontLeftLocation.rotateBy(Rotation2d.fromDegrees(-180.0))
         )
       )
       return SwerveDrive(
