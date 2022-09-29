@@ -1,5 +1,6 @@
 package frc.team449.control.holonomic
 
+import com.revrobotics.CANSparkMax
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.SimpleMotorFeedforward
 import edu.wpi.first.math.geometry.Pose2d
@@ -11,6 +12,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.robot2022.drive.DriveConstants
 import frc.team449.system.AHRS
+import frc.team449.system.encoder.AbsoluteEncoder
 import frc.team449.system.motor.WrappedMotor
 import io.github.oblarg.oblog.annotations.Log
 
@@ -63,7 +65,7 @@ open class SwerveDrive(
   override val heading: Rotation2d
     @Log.ToString
     get() {
-      return -ahrs.heading
+      return ahrs.heading
     }
 
   override var pose: Pose2d
@@ -72,7 +74,9 @@ open class SwerveDrive(
       return this.odometry.poseMeters
     }
     set(value) {
-      this.odometry.resetPosition(value, heading)
+      ahrs.reset()
+      ahrs.heading = value.rotation
+      this.odometry.resetPosition(value, value.rotation)
     }
 
   override fun stop() {
@@ -133,7 +137,6 @@ open class SwerveDrive(
      * @param wheelbase the length of the sides of the robot measured from the center of the wheels
      * @param trackwidth the length of the front and back of the robot measured from center of wheels
      * @param driveMotorController Supplier to make copies of the same driving PID controllers for all the modules
-     * @param turnMotorController Supplier to make copies of the same turning PID controllers for all the modules
      * @param driveFeedforward Driving feedforward for all the modules
      */
     fun swerveDrive(
@@ -144,14 +147,17 @@ open class SwerveDrive(
       frontRightDriveMotor: WrappedMotor,
       backLeftDriveMotor: WrappedMotor,
       backRightDriveMotor: WrappedMotor,
-      frontLeftTurnMotor: WrappedMotor,
-      frontRightTurnMotor: WrappedMotor,
-      backLeftTurnMotor: WrappedMotor,
-      backRightTurnMotor: WrappedMotor,
+      frontLeftTurnMotor: CANSparkMax,
+      frontLeftEncoder: AbsoluteEncoder,
+      frontRightTurnMotor: CANSparkMax,
+      frontRightEncoder: AbsoluteEncoder,
+      backLeftTurnMotor: CANSparkMax,
+      backLeftEncoder: AbsoluteEncoder,
+      backRightTurnMotor: CANSparkMax,
+      backRightEncoder: AbsoluteEncoder,
       wheelbase: Double,
       trackwidth: Double,
       driveMotorController: () -> PIDController,
-      turnMotorController: () -> PIDController,
       driveFeedforward: SimpleMotorFeedforward
     ): SwerveDrive {
       val modules = listOf(
@@ -159,8 +165,8 @@ open class SwerveDrive(
           "FLModule",
           frontLeftDriveMotor,
           frontLeftTurnMotor,
+          frontLeftEncoder,
           driveMotorController(),
-          turnMotorController(),
           driveFeedforward,
           Translation2d(wheelbase / 2, trackwidth / 2)
         ),
@@ -168,8 +174,8 @@ open class SwerveDrive(
           "FRModule",
           frontRightDriveMotor,
           frontRightTurnMotor,
+          frontRightEncoder,
           driveMotorController(),
-          turnMotorController(),
           driveFeedforward,
           Translation2d(wheelbase / 2, - trackwidth / 2)
         ),
@@ -177,8 +183,8 @@ open class SwerveDrive(
           "BLModule",
           backLeftDriveMotor,
           backLeftTurnMotor,
+          backLeftEncoder,
           driveMotorController(),
-          turnMotorController(),
           driveFeedforward,
           Translation2d(- wheelbase / 2, trackwidth / 2)
         ),
@@ -186,8 +192,8 @@ open class SwerveDrive(
           "BRModule",
           backRightDriveMotor,
           backRightTurnMotor,
+          backRightEncoder,
           driveMotorController(),
-          turnMotorController(),
           driveFeedforward,
           Translation2d(- wheelbase / 2, - trackwidth / 2)
         )

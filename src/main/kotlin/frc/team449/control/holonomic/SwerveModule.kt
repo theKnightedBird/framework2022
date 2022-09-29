@@ -1,11 +1,16 @@
 package frc.team449.control.holonomic
 
+import com.revrobotics.CANSparkMax
+import com.revrobotics.RelativeEncoder
+import com.revrobotics.SparkMaxPIDController
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.SimpleMotorFeedforward
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.wpilibj.RobotBase
+import frc.team449.robot2022.drive.DriveConstants
+import frc.team449.system.encoder.AbsoluteEncoder
 import frc.team449.system.motor.WrappedMotor
 import io.github.oblarg.oblog.Loggable
 import io.github.oblarg.oblog.annotations.Log
@@ -25,31 +30,36 @@ import kotlin.math.abs
 open class SwerveModule constructor(
   private val name: String,
   private val drivingMotor: WrappedMotor,
-  private val turningMotor: WrappedMotor,
+  private val turningMotor: CANSparkMax,
+  private val absEncoder: AbsoluteEncoder,
   private val driveController: PIDController,
-  private val turnController: PIDController,
   private val driveFeedforward: SimpleMotorFeedforward,
-  val location: Translation2d
+  val location: Translation2d,
+  private val turnController: SparkMaxPIDController = turningMotor.pidController,
+  private val turnEncoder: RelativeEncoder = turningMotor.encoder
 ) : Loggable {
   init {
-    turnController.enableContinuousInput(.0, 2 * PI)
-    /** Tolerate the noise from the encoders, ~.08 - .09 */
-    turnController.setTolerance(.1)
     driveController.reset()
-    turnController.reset()
+
+    turnController.p = DriveConstants.TURN_KP
+    turnController.i = DriveConstants.TURN_KI
+    turnController.d = DriveConstants.DRIVE_KD
+
+    turnEncoder.positionConversionFactor = 2 * PI /** Measure in Radians */
+    sync()
   }
 
   @Log.Graph
   private var desiredSpeed = 0.0
   @Log
-  private var desiredAngle = turningMotor.position
+  private var desiredAngle = turnEncoder.position
 
   open var state: SwerveModuleState
     @Log.ToString
     get() {
       return SwerveModuleState(
         drivingMotor.velocity,
-        Rotation2d(turningMotor.position)
+        Rotation2d(turnEncoder.position)
       )
     }
     set(desiredState) {
@@ -60,17 +70,25 @@ open class SwerveModule constructor(
       /** Ensure the module doesn't turn the long way around */
       val state = SwerveModuleState.optimize(
         desiredState,
-        Rotation2d(turningMotor.position)
+        Rotation2d(turnEncoder.position)
       )
-      turnController.setpoint = state.angle.radians
+      turnController.setReference(
+        state.angle.radians,
+        CANSparkMax.ControlType.kPosition
+      )
       desiredSpeed = state.speedMetersPerSecond
       driveController.setpoint = state.speedMetersPerSecond
     }
 
   fun stop() {
-    desiredAngle = turningMotor.position
+    desiredAngle = turnEncoder.position
     desiredSpeed = 0.0
   }
+
+  fun sync() {
+    turnEncoder.position = absEncoder.position
+  }
+
   override fun configureLogName() = this.name
 
   fun update() {
@@ -80,12 +98,6 @@ open class SwerveModule constructor(
     val driveFF = driveFeedforward.calculate(desiredSpeed)
 
     drivingMotor.setVoltage(drivePid + driveFF)
-
-    val turnPid = turnController.calculate(
-      turningMotor.position
-    )
-
-    turningMotor.set(turnPid)
   }
 
   /**
@@ -97,9 +109,9 @@ open class SwerveModule constructor(
     fun create(
       name: String,
       drivingMotor: WrappedMotor,
-      turningMotor: WrappedMotor,
+      turningMotor: CANSparkMax,
+      absEncoder: AbsoluteEncoder,
       driveController: PIDController,
-      turnController: PIDController,
       driveFeedforward: SimpleMotorFeedforward,
       location: Translation2d
     ): SwerveModule {
@@ -108,8 +120,8 @@ open class SwerveModule constructor(
           name,
           drivingMotor,
           turningMotor,
+          absEncoder,
           driveController,
-          turnController,
           driveFeedforward,
           location
         )
@@ -118,8 +130,8 @@ open class SwerveModule constructor(
           name,
           drivingMotor,
           turningMotor,
+          absEncoder,
           driveController,
-          turnController,
           driveFeedforward,
           location
         )
@@ -135,17 +147,17 @@ open class SwerveModule constructor(
 class SwerveModuleSim(
   name: String,
   drivingMotor: WrappedMotor,
-  turningMotor: WrappedMotor,
+  turningMotor: CANSparkMax,
+  absEncoder: AbsoluteEncoder,
   driveController: PIDController,
-  turnController: PIDController,
   driveFeedforward: SimpleMotorFeedforward,
   location: Translation2d
 ) : SwerveModule(
   name,
   drivingMotor,
   turningMotor,
+  absEncoder,
   driveController,
-  turnController,
   driveFeedforward,
   location
 ) {

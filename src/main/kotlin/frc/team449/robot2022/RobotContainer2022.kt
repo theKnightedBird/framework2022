@@ -1,12 +1,12 @@
 package frc.team449.robot2022
 
+import com.revrobotics.CANSparkMax
+import com.revrobotics.CANSparkMaxLowLevel
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.SimpleMotorFeedforward
 import edu.wpi.first.math.filter.SlewRateLimiter
-import edu.wpi.first.wpilibj.PowerDistribution
+import edu.wpi.first.wpilibj.*
 import edu.wpi.first.wpilibj.RobotBase.isReal
-import edu.wpi.first.wpilibj.SerialPort
-import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import frc.team449.RobotContainerBase
 import frc.team449.control.auto.AutoRoutine
@@ -73,26 +73,31 @@ class RobotContainer2022() : RobotContainerBase() {
 
   /** Helper to make turning motors for swerve */
   private fun makeTurningMotor(
-    name: String,
     motorId: Int,
-    inverted: Boolean,
-    sensorPhase: Boolean,
-    encoderChannel: Int,
-    offset: Double
-  ) =
-    createSparkMax(
-      name = name + "Turn",
-      id = motorId,
-      enableBrakeMode = true,
-      inverted = inverted,
-      encCreator = AbsoluteEncoder.creator(
-        encoderChannel,
-        offset,
-        DriveConstants.TURN_UPR,
-        sensorPhase
-      )
+    inverted: Boolean
+  ): CANSparkMax {
+    val enc = CANSparkMax(
+      motorId,
+      CANSparkMaxLowLevel.MotorType.kBrushless
     )
+    enc.inverted = inverted
+    enc.idleMode = CANSparkMax.IdleMode.kBrake
+    return enc
+  }
 
+  /** Helper to make the turning absolute encoders for swerve */
+  private fun makeTurningEncoder(
+    name: String,
+    encChannel: Int,
+    offset: Double,
+    inverted: Boolean
+  ) = AbsoluteEncoder(
+    name,
+    DutyCycleEncoder(encChannel),
+    DriveConstants.TURN_UPR,
+    inverted,
+    offset
+  )
   private fun createDrivetrain() =
     SwerveDrive.swerveDrive(
       ahrs,
@@ -119,41 +124,48 @@ class RobotContainer2022() : RobotContainerBase() {
         false
       ),
       makeTurningMotor(
-        "FL",
         DriveConstants.TURN_MOTOR_FL,
-        true,
-        false,
+        true
+      ),
+      makeTurningEncoder(
+        "FL",
         DriveConstants.TURN_ENC_CHAN_FL,
-        DriveConstants.TURN_ENC_OFFSET_FL
+        DriveConstants.TURN_ENC_OFFSET_FL,
+        false
       ),
       makeTurningMotor(
-        "FR",
         DriveConstants.TURN_MOTOR_FR,
-        true,
-        false,
+        true
+      ),
+      makeTurningEncoder(
+        "FR",
         DriveConstants.TURN_ENC_CHAN_FR,
-        DriveConstants.TURN_ENC_OFFSET_FR
+        DriveConstants.TURN_ENC_OFFSET_FR,
+        false
       ),
       makeTurningMotor(
-        "BL",
         DriveConstants.TURN_MOTOR_BL,
-        true,
-        false,
+        true
+      ),
+      makeTurningEncoder(
+        "BL",
         DriveConstants.TURN_ENC_CHAN_BL,
-        DriveConstants.TURN_ENC_OFFSET_BL
+        DriveConstants.TURN_ENC_OFFSET_BL,
+        false
       ),
       makeTurningMotor(
-        "BR",
         DriveConstants.TURN_MOTOR_BR,
-        true,
-        false,
+        true
+      ),
+      makeTurningEncoder(
+        "BR",
         DriveConstants.TURN_ENC_CHAN_BR,
-        DriveConstants.TURN_ENC_OFFSET_BR
+        DriveConstants.TURN_ENC_OFFSET_BR,
+        false
       ),
       DriveConstants.WHEELBASE,
       DriveConstants.TRACKWIDTH,
       { PIDController(DriveConstants.DRIVE_KP, DriveConstants.DRIVE_KI, DriveConstants.DRIVE_KD) },
-      { PIDController(DriveConstants.TURN_KP, DriveConstants.TURN_KI, DriveConstants.TURN_KD) },
       SimpleMotorFeedforward(DriveConstants.DRIVE_KS, DriveConstants.DRIVE_KV, DriveConstants.DRIVE_KA)
     )
 

@@ -7,7 +7,6 @@ import io.github.oblarg.oblog.annotations.Log
 
 /**
  * This class uses an absolute encoder, gear ratio and UPR to give the absolute position of the module or rotational velocity of the module.
- *
  * @param offset This must be in rotations of how much the offset of the ENCODER should be.
  */
 class AbsoluteEncoder(
