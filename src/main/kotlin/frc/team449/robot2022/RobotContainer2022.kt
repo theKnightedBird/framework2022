@@ -5,11 +5,11 @@ import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.controller.SimpleMotorFeedforward
 import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.math.trajectory.TrapezoidProfile
-import edu.wpi.first.wpilibj.Encoder
-import edu.wpi.first.wpilibj.SerialPort
-import edu.wpi.first.wpilibj.XboxController
+import edu.wpi.first.wpilibj.*
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
+import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.button.JoystickButton
 import frc.team449.control.auto.AutoRoutine
 import frc.team449.control.holonomic.OIHolonomic
 import frc.team449.control.holonomic.SwerveDrive
@@ -21,8 +21,9 @@ import frc.team449.system.encoder.NEOEncoder
 import frc.team449.system.encoder.QuadEncoder
 import frc.team449.system.motor.createSparkMax
 import io.github.oblarg.oblog.annotations.Log
+import kotlin.contracts.contract
 
-class RobotContainer2022 {
+class RobotContainer2022() {
 
   // Other CAN IDs
   val PDP_CAN = 1
@@ -170,11 +171,32 @@ class RobotContainer2022 {
       SimpleMotorFeedforward(.0, .0, .0)
     )
 
+  val spoopidMotor = createSparkMax(
+    "spoopid",
+    42,
+    NEOEncoder.creator(
+      1.0,
+      1.0
+    )
+  )
+  var spoopidSpeed = 0.0
+  val spoopidSensor = DigitalOutput(0)
+
   fun teleopInit() {
     // todo Add button bindings here
+    /*JoystickButton(driveController, XboxController.Button.kA.value).whenPressed(
+      InstantCommand({spoopidSpeed = if (spoopidSpeed == 0.3) 0.0 else 0.3}))*/
+
   }
 
-  fun robotPeriodic() {}
+  fun teleopPeriodic() {
+    spoopidSpeed = if (spoopidSensor.get()) 0.3 else 0.0
+    spoopidMotor.set(spoopidSpeed)
+  }
+
+  fun robotPeriodic() {
+    println(spoopidSensor.get())
+  }
 
   fun simulationInit() {
     // DriverStationSim.setEnabled(true)

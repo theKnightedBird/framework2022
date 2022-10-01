@@ -59,7 +59,8 @@ class Robot : TimedRobot() {
   }
 
   override fun teleopPeriodic() {
-    robotContainer.drive.set(robotContainer.oi.get())
+    //robotContainer.drive.set(robotContainer.oi.get())
+    robotContainer.teleopPeriodic()
   }
 
   override fun disabledInit() {}
