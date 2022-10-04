@@ -10,11 +10,14 @@ import edu.wpi.first.wpilibj.*
 import edu.wpi.first.wpilibj.RobotBase.isReal
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
+import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.button.JoystickButton
 import frc.team449.RobotContainerBase
 import frc.team449.control.auto.AutoRoutine
 import frc.team449.control.differential.DifferentialDrive
 import frc.team449.control.differential.DifferentialOIs
 import frc.team449.robot2022.auto.Example
+import frc.team449.robot2022.cargo.Cargo
 import frc.team449.robot2022.drive.DriveConstants
 import frc.team449.system.AHRS
 import frc.team449.system.encoder.BackupEncoder
@@ -154,8 +157,16 @@ class RobotContainer2022() : RobotContainerBase() {
     return chooser
   }
 
+  val intake = createSparkMax("Intake Leader", 8, NEOEncoder.creator(1.0, 1.0), slaveSparks = mapOf(10 to false))
+
+
+  val CargoObj = Cargo()
+
+
   override fun teleopInit() {
-    // todo Add button bindings here
+    JoystickButton(driveController, XboxController.Button.kA.value).whenPressed(
+      InstantCommand()
+    )
   }
 
   override fun robotPeriodic() {
