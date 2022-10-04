@@ -58,7 +58,6 @@ class Cargo(
     }
   }
 
-
   fun shoot() {
     flywheelOn = true
   }

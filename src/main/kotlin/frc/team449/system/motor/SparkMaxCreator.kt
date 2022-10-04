@@ -15,6 +15,7 @@ import frc.team449.system.encoder.EncoderCreator
  */
 fun createSparkMax(
   name: String,
+  // nameQuad : String = name,
   id: Int,
   encCreator: EncoderCreator<CANSparkMax>,
   enableBrakeMode: Boolean = true,

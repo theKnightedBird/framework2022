@@ -7,7 +7,6 @@ import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.wpilibj.*
-import edu.wpi.first.wpilibj.RobotBase.isReal
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj2.command.InstantCommand
@@ -16,13 +15,10 @@ import frc.team449.RobotContainerBase
 import frc.team449.control.auto.AutoRoutine
 import frc.team449.control.differential.DifferentialDrive
 import frc.team449.control.differential.DifferentialOIs
-import frc.team449.robot2022.auto.Example
-import frc.team449.robot2022.cargo.Cargo
+import frc.team449.robot2022.cargo.CargoConstants
 import frc.team449.robot2022.drive.DriveConstants
 import frc.team449.system.AHRS
-import frc.team449.system.encoder.BackupEncoder
 import frc.team449.system.encoder.NEOEncoder
-import frc.team449.system.encoder.QuadEncoder
 import frc.team449.system.motor.createSparkMax
 import io.github.oblarg.oblog.annotations.Log
 import kotlin.math.absoluteValue
@@ -45,7 +41,7 @@ class RobotContainer2022() : RobotContainerBase() {
   @Log.Include
   override val drive = createDrivetrain()
 
-  override val driveSim = if (isReal()) null else createDriveSimController()
+  override val driveSim = null
 
   val driveController = XboxController(DriveConstants.DRIVE_CONTROLLER_PORT)
 
@@ -72,21 +68,17 @@ class RobotContainer2022() : RobotContainerBase() {
   ) =
     createSparkMax(
       name = name + "_Drive",
+      // nameQuad = name + "_DriveQuad",
       id = motorId,
       enableBrakeMode = true,
       inverted = inverted,
       encCreator =
-      BackupEncoder.creator(
-        QuadEncoder.creator(
-          wpiEnc,
-          DriveConstants.DRIVE_EXT_ENC_CPR,
-          DriveConstants.DRIVE_UPR,
-          1.0,
-          false
-        ),
-        NEOEncoder.creator(DriveConstants.DRIVE_UPR, DriveConstants.DRIVE_GEARING),
-        DriveConstants.DRIVE_ENC_VEL_THRESHOLD
+
+      NEOEncoder.creator(
+        DriveConstants.DRIVE_UPR,
+        DriveConstants.DRIVE_GEARING
       ),
+
       slaveSparks = followers,
       currentLimit = DriveConstants.DRIVE_CURRENT_LIM
     )
@@ -151,17 +143,40 @@ class RobotContainer2022() : RobotContainerBase() {
 
   private fun addRoutines(): SendableChooser<AutoRoutine> {
     val chooser = SendableChooser<AutoRoutine>()
-    val exampleAuto = Example("Example", 2.0, 2.0, drive)
-    chooser.setDefaultOption("Example Differential Auto", exampleAuto.routine())
+    // chooser.setDefaultOption("Example Differential Auto", exampleAuto.routine())
 
     return chooser
   }
 
-  val intake = createSparkMax("Intake Leader", 8, NEOEncoder.creator(1.0, 1.0), slaveSparks = mapOf(10 to false))
+  val intake = createSparkMax(
+    "Intake Leader",
+    8,
+    NEOEncoder.creator(
+      1.0,
+      1.0
+    ),
+    slaveSparks = mapOf(10 to false)
+  )
 
+  val shooter = createSparkMax(
+    "Shooter",
+    12,
+    NEOEncoder.creator(
+      1.0,
+      1.0
+    ),
+    // slaveSparks = mapOf(10 to false)
+  )
 
-  val CargoObj = Cargo()
+  val motorFF = SimpleMotorFeedforward(
+    CargoConstants.SHOOTER_KS,
+    CargoConstants.SHOOTER_KV,
+    CargoConstants.SHOOTER_KA
+  )
 
+  // val shooterPIDController =
+
+  // val CargoObj = Cargo()
 
   override fun teleopInit() {
     JoystickButton(driveController, XboxController.Button.kA.value).whenPressed(
