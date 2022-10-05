@@ -1,5 +1,7 @@
 package frc.team449.robot2022.cargo
 
+// import edu.wpi.first.math.controller.PIDController
+// import edu.wpi.first.math.controller.SimpleMotorFeedforward
 import edu.wpi.first.wpilibj.DoubleSolenoid
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.system.motor.WrappedMotor
@@ -7,6 +9,8 @@ import frc.team449.system.motor.WrappedMotor
 class Cargo(
   val intakeMotor: WrappedMotor,
   val spitterMotor: WrappedMotor,
+  val shooterMotor: WrappedMotor,
+  var shooterDesiredVelocity: Double,
   // var spitterMotorVoltage: Double,
   // replacing the motor voltage bc idt we ever need a voltage but we do need two separate speed for spitting and intaking
   var spitterDesiredVelocityIntake: Double,
@@ -51,28 +55,28 @@ class Cargo(
 
   override fun periodic() {
     if (flywheelOn) {
+      shooterMotor.set(shooterDesiredVelocity)
       spitterMotor.set(spitterDesiredVelocitySpit)
     }
   }
 
-  /*
-  if (flywheelOn) {
-    spitterMotor.setVoltage(
-      motor.calculate(spitterDesiredVelocity) + shooterPIDController.calculate(
-        spitterMotor.velocity,
-        spitterDesiredVelocity
-      )
-    )
-  }
-  the above was replaced with "spitterMotor.set(spitterDesiredVelocity)"
-   */
+//    if (flywheelOn) {
+//      spitterMotor.setVoltage(
+//        motor.calculate(spitterDesiredVelocitySpit) + shooterPIDController.calculate(
+//          spitterMotor.velocity,
+//          spitterDesiredVelocitySpit
+//        )
+//      )
+//    }
+  // the above was replaced with "spitterMotor.set(spitterDesiredVelocity)"
 
   fun shoot() {
     flywheelOn = true
   }
 
   fun stopShoot() {
-    spitterMotor.setVoltage(0.0)
+    spitterMotor.set(0.0)
+    shooterMotor.set(0.0)
     flywheelOn = false
   }
 }

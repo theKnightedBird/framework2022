@@ -160,8 +160,17 @@ class RobotContainer2022() : RobotContainerBase() {
   )
 
   val spitterMotor = createSparkMax(
-    "Shooter",
+    "Spitter",
     12,
+    NEOEncoder.creator(
+      1.0,
+      1.0
+    ),
+  )
+
+  val shooterMotor = createSparkMax(
+    "Shooter",
+    8,
     NEOEncoder.creator(
       1.0,
       1.0
@@ -190,13 +199,16 @@ class RobotContainer2022() : RobotContainerBase() {
 
   val intakeVelocity = CargoConstants.SPITTER_INTAKE_SPEED_RPS / 94.6
   val spitVelocity = CargoConstants.SPITTER_SPIT_SPEED_RPS / 94.6
+  val shooterVelocity = CargoConstants.SHOOTER_SPEED_RPS / 94.6
 
   // dividing the rps by 94.6 to convert to motor percentage for .set()
   // idk if it's right but i just did some calculations based on the motor specs
-  
-  val CargoObj = Cargo(
+
+  val roboCargo = Cargo(
     intakeMotor,
     spitterMotor,
+    shooterMotor,
+    shooterVelocity,
     intakeVelocity,
     spitVelocity,
     intakePiston,
@@ -210,9 +222,39 @@ class RobotContainer2022() : RobotContainerBase() {
   }
 
   // will do stuff here
-//  override fun teleopPeriodic(){
-//
-//  }
+  override fun teleopPeriodic() {
+    super.teleopPeriodic()
+    roboCargo.stopShoot()
+    roboCargo.periodic()
+    // which buttons are going to what
+    // ok just gonna set random ones for now
+
+    // for intake piston
+    if (driveController.aButton) {
+      roboCargo.deployIntake()
+    } else if (driveController.bButton) {
+      roboCargo.retractIntake()
+    }
+
+    // for hood piston
+    if (driveController.xButton) {
+      roboCargo.deployHood()
+    } else if (driveController.yButton) {
+      roboCargo.retractHood()
+    }
+
+    // for running the intake
+    if (driveController.rightY < 0) {
+      roboCargo.runIntake()
+    } else if (driveController.rightY > 0) {
+      roboCargo.runIntakeReverse()
+    }
+
+    // for shooter
+    if (driveController.rightBumperPressed) {
+      roboCargo.shoot()
+    }
+  }
 
   override fun robotPeriodic() {
   }
