@@ -32,6 +32,10 @@ class Cargo(
     spitterMotor.set(-spitterDesiredVelocityIntake)
   }
 
+  fun stopIntake() {
+    intakeMotor.setVoltage(0.0)
+  }
+
   fun deployIntake() {
     pistonIntake.set(DoubleSolenoid.Value.kReverse)
   }
