@@ -149,7 +149,7 @@ class RobotContainer2022() : RobotContainerBase() {
     return chooser
   }
 
-  val intake = createSparkMax(
+  val intakeMotor = createSparkMax(
     "Intake Leader",
     8,
     NEOEncoder.creator(
@@ -159,14 +159,13 @@ class RobotContainer2022() : RobotContainerBase() {
     slaveSparks = mapOf(10 to false)
   )
 
-  val spitter = createSparkMax(
+  val spitterMotor = createSparkMax(
     "Shooter",
     12,
     NEOEncoder.creator(
       1.0,
       1.0
     ),
-    // slaveSparks = mapOf(10 to false)
   )
 
   val motorFF = SimpleMotorFeedforward(
@@ -177,27 +176,31 @@ class RobotContainer2022() : RobotContainerBase() {
 
   // val shooterPIDController =
 
-  val deployIntake = DoubleSolenoid(
+  val intakePiston = DoubleSolenoid(
     PneumaticsModuleType.CTREPCM,
     CargoConstants.INTAKE_PISTON_FWD_CHANNEL,
     CargoConstants.INTAKE_PISTON_REV_CHANNEL
   )
 
-  val hood = DoubleSolenoid(
+  val hoodPiston = DoubleSolenoid(
     PneumaticsModuleType.CTREPCM,
     CargoConstants.HOOD_PISTON_FWD_CHANNEL,
     CargoConstants.HOOD_PISTON_REV_CHANNEL
   )
 
-  // dividing the rps by 94.6 to convert to the motor velocity to set
+  val intakeVelocity = CargoConstants.SPITTER_INTAKE_SPEED_RPS / 94.6
+  val spitVelocity = CargoConstants.SPITTER_SPIT_SPEED_RPS / 94.6
+
+  // dividing the rps by 94.6 to convert to motor percentage for .set()
   // idk if it's right but i just did some calculations based on the motor specs
+  
   val CargoObj = Cargo(
-    intake,
-    spitter,
-    CargoConstants.SPITTER_INTAKE_SPEED_RPS / 94.6,
-    CargoConstants.SPITTER_SPIT_SPEED_RPS / 94.6,
-    deployIntake,
-    hood
+    intakeMotor,
+    spitterMotor,
+    intakeVelocity,
+    spitVelocity,
+    intakePiston,
+    hoodPiston
   )
 
   override fun teleopInit() {

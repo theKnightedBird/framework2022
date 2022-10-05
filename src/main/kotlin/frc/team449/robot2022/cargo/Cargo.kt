@@ -8,7 +8,7 @@ class Cargo(
   val intakeMotor: WrappedMotor,
   val spitterMotor: WrappedMotor,
   // var spitterMotorVoltage: Double,
-  /*replacing the motor voltage bc idt we ever need a voltage but we do need two separate speed for spitting and intaking*/
+  // replacing the motor voltage bc idt we ever need a voltage but we do need two separate speed for spitting and intaking
   var spitterDesiredVelocityIntake: Double,
   var spitterDesiredVelocitySpit: Double,
   // val motor: SimpleMotorFeedforward,
