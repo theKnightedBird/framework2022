@@ -9,26 +9,26 @@ import frc.team449.system.motor.WrappedMotor
 class Cargo(
   val intakeMotor: WrappedMotor,
   val spitterMotor: WrappedMotor,
-  var shooterMotorVoltage: Double,
-  var shooterdesiredVelocity: Double,
+  var spitterMotorVoltage: Double,
+  var spitterdesiredVelocity: Double,
   val motor: SimpleMotorFeedforward,
-  val shooterPIDController: PIDController,
+  // val shooterPIDController: PIDController,
   val deployIntake: DoubleSolenoid,
   val deployHood: DoubleSolenoid
 ) : SubsystemBase() {
 
   private var flywheelOn: Boolean = false
 
-  val trueDesiredVelocity: Double = shooterdesiredVelocity
+  val trueDesiredVelocity: Double = spitterdesiredVelocity
 
   fun runIntake() {
     intakeMotor.set(CargoConstants.FEEDER_OUTPUT)
-    spitterMotor.set(-shooterMotorVoltage)
+    spitterMotor.set(-spitterMotorVoltage)
   }
 
   fun runIntakeReverse() {
     intakeMotor.set(-CargoConstants.FEEDER_OUTPUT)
-    spitterMotor.set(-shooterMotorVoltage)
+    spitterMotor.set(-spitterMotorVoltage)
   }
 
   fun deployIntake() {
@@ -49,12 +49,7 @@ class Cargo(
 
   override fun periodic() {
     if (flywheelOn) {
-      spitterMotor.setVoltage(
-        motor.calculate(shooterdesiredVelocity) + shooterPIDController.calculate(
-          spitterMotor.velocity,
-          shooterdesiredVelocity
-        )
-      )
+      spitterMotor.set(spitterdesiredVelocity)
     }
   }
 

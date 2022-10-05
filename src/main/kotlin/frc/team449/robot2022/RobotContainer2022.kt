@@ -158,7 +158,7 @@ class RobotContainer2022() : RobotContainerBase() {
     slaveSparks = mapOf(10 to false)
   )
 
-  val shooter = createSparkMax(
+  val spitter = createSparkMax(
     "Shooter",
     12,
     NEOEncoder.creator(
