@@ -10,8 +10,8 @@ class Cargo(
   val intakeMotor: WrappedMotor,
   val spitterMotor: WrappedMotor,
   var spitterMotorVoltage: Double,
-  var spitterdesiredVelocity: Double,
-  val motor: SimpleMotorFeedforward,
+  var spitterDesiredVelocity: Double,
+  // val motor: SimpleMotorFeedforward,
   // val shooterPIDController: PIDController,
   val deployIntake: DoubleSolenoid,
   val deployHood: DoubleSolenoid
@@ -19,7 +19,8 @@ class Cargo(
 
   private var flywheelOn: Boolean = false
 
-  val trueDesiredVelocity: Double = spitterdesiredVelocity
+  // val trueDesiredVelocity: Double = spitterDesiredVelocity
+  // why is trueDesiredVelocity needed if it's the same thing as spitterDesiredVelocity
 
   fun runIntake() {
     intakeMotor.set(CargoConstants.FEEDER_OUTPUT)
@@ -39,19 +40,32 @@ class Cargo(
     deployIntake.set(DoubleSolenoid.Value.kForward)
   }
 
+  // deploy hood increases shooting height
   fun deployHood() {
     deployHood.set(DoubleSolenoid.Value.kReverse)
   }
 
-  fun removeHood() {
+  fun retractHood() {
     deployHood.set(DoubleSolenoid.Value.kForward)
   }
 
   override fun periodic() {
     if (flywheelOn) {
-      spitterMotor.set(spitterdesiredVelocity)
+      spitterMotor.set(spitterDesiredVelocity)
     }
   }
+
+  /*
+  if (flywheelOn) {
+    spitterMotor.setVoltage(
+      motor.calculate(spitterDesiredVelocity) + shooterPIDController.calculate(
+        spitterMotor.velocity,
+        spitterDesiredVelocity
+      )
+    )
+  }
+  the above was replaced with "spitterMotor.set(spitterDesiredVelocity)"
+   */
 
   fun shoot() {
     flywheelOn = true
@@ -59,5 +73,6 @@ class Cargo(
 
   fun stopShoot() {
     spitterMotor.setVoltage(0.0)
+    flywheelOn = false
   }
 }
