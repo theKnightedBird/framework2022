@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.*
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.StartEndCommand
 import edu.wpi.first.wpilibj2.command.button.JoystickButton
 import frc.team449.RobotContainerBase
 import frc.team449.control.auto.AutoRoutine
@@ -168,6 +169,8 @@ class RobotContainer2022() : RobotContainerBase() {
     ),
   )
 
+  //shooterMotor is the motor on the hood, spitterMotor is the motor at the very top
+
   val shooterMotor = createSparkMax(
     "Shooter",
     8,
@@ -216,8 +219,19 @@ class RobotContainer2022() : RobotContainerBase() {
   )
 
   override fun teleopInit() {
-    JoystickButton(driveController, XboxController.Button.kA.value).whenPressed(
-      InstantCommand()
+    // runs intake motor with positive
+    JoystickButton(
+      driveController,
+      XboxController.Button.kA.value).whenPressed(
+      InstantCommand(roboCargo::runIntake)
+    ).whenReleased(
+      InstantCommand(roboCargo::stopIntake)
+    )
+    JoystickButton(driveController,
+      XboxController.Button.kX.value).whenPressed(
+      InstantCommand(roboCargo::runIntakeReverse)
+    ).whenReleased(
+      InstantCommand(roboCargo::stopIntake)
     )
   }
 
