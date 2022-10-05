@@ -223,38 +223,6 @@ class RobotContainer2022() : RobotContainerBase() {
 
   // will do stuff here
   override fun teleopPeriodic() {
-    super.teleopPeriodic()
-    roboCargo.stopShoot()
-    roboCargo.periodic()
-    // which buttons are going to what
-    // ok just gonna set random ones for now
-    // make sure to change
-
-    // for intake piston
-    if (driveController.aButton) {
-      roboCargo.deployIntake()
-    } else if (driveController.bButton) {
-      roboCargo.retractIntake()
-    }
-
-    // for hood piston
-    if (driveController.xButton) {
-      roboCargo.deployHood()
-    } else if (driveController.yButton) {
-      roboCargo.retractHood()
-    }
-
-    // for running the intake
-    if (driveController.rightY < 0) {
-      roboCargo.runIntake()
-    } else if (driveController.rightY > 0) {
-      roboCargo.runIntakeReverse()
-    }
-
-    // for shooter
-    if (driveController.rightBumperPressed) {
-      roboCargo.shoot()
-    }
   }
 
   override fun robotPeriodic() {
