@@ -15,6 +15,7 @@ import frc.team449.RobotContainerBase
 import frc.team449.control.auto.AutoRoutine
 import frc.team449.control.differential.DifferentialDrive
 import frc.team449.control.differential.DifferentialOIs
+import frc.team449.robot2022.cargo.Cargo
 import frc.team449.robot2022.cargo.CargoConstants
 import frc.team449.robot2022.drive.DriveConstants
 import frc.team449.system.AHRS
@@ -176,13 +177,39 @@ class RobotContainer2022() : RobotContainerBase() {
 
   // val shooterPIDController =
 
-  // val CargoObj = Cargo()
+  val deployIntake = DoubleSolenoid(
+    PneumaticsModuleType.CTREPCM,
+    CargoConstants.INTAKE_PISTON_FWD_CHANNEL,
+    CargoConstants.INTAKE_PISTON_REV_CHANNEL
+  )
+
+  val hood = DoubleSolenoid(
+    PneumaticsModuleType.CTREPCM,
+    CargoConstants.HOOD_PISTON_FWD_CHANNEL,
+    CargoConstants.HOOD_PISTON_REV_CHANNEL
+  )
+
+  // dividing the rps by 94.6 to convert to the motor velocity to set
+  // idk if it's right but i just did some calculations based on the motor specs
+  val CargoObj = Cargo(
+    intake,
+    spitter,
+    CargoConstants.SPITTER_INTAKE_SPEED_RPS / 94.6,
+    CargoConstants.SPITTER_SPIT_SPEED_RPS / 94.6,
+    deployIntake,
+    hood
+  )
 
   override fun teleopInit() {
     JoystickButton(driveController, XboxController.Button.kA.value).whenPressed(
       InstantCommand()
     )
   }
+
+  // will do stuff here
+//  override fun teleopPeriodic(){
+//
+//  }
 
   override fun robotPeriodic() {
   }

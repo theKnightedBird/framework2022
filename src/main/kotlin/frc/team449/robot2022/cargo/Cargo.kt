@@ -1,7 +1,5 @@
 package frc.team449.robot2022.cargo
 
-import edu.wpi.first.math.controller.PIDController
-import edu.wpi.first.math.controller.SimpleMotorFeedforward
 import edu.wpi.first.wpilibj.DoubleSolenoid
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.system.motor.WrappedMotor
@@ -9,8 +7,10 @@ import frc.team449.system.motor.WrappedMotor
 class Cargo(
   val intakeMotor: WrappedMotor,
   val spitterMotor: WrappedMotor,
-  var spitterMotorVoltage: Double,
-  var spitterDesiredVelocity: Double,
+  // var spitterMotorVoltage: Double,
+  /*replacing the motor voltage bc idt we ever need a voltage but we do need two separate speed for spitting and intaking*/
+  var spitterDesiredVelocityIntake: Double,
+  var spitterDesiredVelocitySpit: Double,
   // val motor: SimpleMotorFeedforward,
   // val shooterPIDController: PIDController,
   val deployIntake: DoubleSolenoid,
@@ -24,12 +24,12 @@ class Cargo(
 
   fun runIntake() {
     intakeMotor.set(CargoConstants.FEEDER_OUTPUT)
-    spitterMotor.set(-spitterMotorVoltage)
+    spitterMotor.set(-spitterDesiredVelocityIntake)
   }
 
   fun runIntakeReverse() {
     intakeMotor.set(-CargoConstants.FEEDER_OUTPUT)
-    spitterMotor.set(-spitterMotorVoltage)
+    spitterMotor.set(-spitterDesiredVelocityIntake)
   }
 
   fun deployIntake() {
@@ -51,7 +51,7 @@ class Cargo(
 
   override fun periodic() {
     if (flywheelOn) {
-      spitterMotor.set(spitterDesiredVelocity)
+      spitterMotor.set(spitterDesiredVelocitySpit)
     }
   }
 
