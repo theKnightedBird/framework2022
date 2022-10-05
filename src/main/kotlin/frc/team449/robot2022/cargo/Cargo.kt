@@ -13,8 +13,8 @@ class Cargo(
   var spitterDesiredVelocitySpit: Double,
   // val motor: SimpleMotorFeedforward,
   // val shooterPIDController: PIDController,
-  val deployIntake: DoubleSolenoid,
-  val deployHood: DoubleSolenoid
+  val pistonIntake: DoubleSolenoid,
+  val pistonHood: DoubleSolenoid
 ) : SubsystemBase() {
 
   private var flywheelOn: Boolean = false
@@ -33,20 +33,20 @@ class Cargo(
   }
 
   fun deployIntake() {
-    deployIntake.set(DoubleSolenoid.Value.kReverse)
+    pistonIntake.set(DoubleSolenoid.Value.kReverse)
   }
 
   fun retractIntake() {
-    deployIntake.set(DoubleSolenoid.Value.kForward)
+    pistonIntake.set(DoubleSolenoid.Value.kForward)
   }
 
   // deploy hood increases shooting height
   fun deployHood() {
-    deployHood.set(DoubleSolenoid.Value.kReverse)
+    pistonHood.set(DoubleSolenoid.Value.kReverse)
   }
 
   fun retractHood() {
-    deployHood.set(DoubleSolenoid.Value.kForward)
+    pistonHood.set(DoubleSolenoid.Value.kForward)
   }
 
   override fun periodic() {

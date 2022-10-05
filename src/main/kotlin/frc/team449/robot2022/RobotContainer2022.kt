@@ -193,7 +193,7 @@ class RobotContainer2022() : RobotContainerBase() {
 
   // dividing the rps by 94.6 to convert to motor percentage for .set()
   // idk if it's right but i just did some calculations based on the motor specs
-  
+
   val CargoObj = Cargo(
     intakeMotor,
     spitterMotor,
@@ -205,7 +205,7 @@ class RobotContainer2022() : RobotContainerBase() {
 
   override fun teleopInit() {
     JoystickButton(driveController, XboxController.Button.kA.value).whenPressed(
-      InstantCommand()
+      InstantCommand(CargoObj::deployIntake)
     )
   }
 
