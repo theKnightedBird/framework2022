@@ -8,6 +8,9 @@ import edu.wpi.first.wpilibj.RobotBase.isReal
 import edu.wpi.first.wpilibj.SerialPort
 import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
+import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.button.JoystickButton
+import edu.wpi.first.wpilibj2.command.button.Trigger
 import frc.team449.RobotContainerBase
 import frc.team449.control.auto.AutoRoutine
 import frc.team449.control.holonomic.OIHolonomic
@@ -164,8 +167,14 @@ class RobotContainer2022() : RobotContainerBase() {
     return chooser
   }
 
+  val riabMotor = createSparkMax("riabMotor", 42, NEOEncoder.creator(1.0,1.0))
+  var riabSpeed = 0.0
+
+  val riabLeftTrigger = JoystickButton(driveController, XboxController.Button.kLeftBumper.value)
+
   override fun teleopInit() {
-    // todo Add button bindings here
+    riabSpeed = if(driveController.leftBumper) 0.5 else 0.0
+    riabMotor.set(riabSpeed)
   }
 
   override fun robotPeriodic() {
