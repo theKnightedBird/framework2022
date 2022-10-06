@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.*
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj2.command.InstantCommand
-import edu.wpi.first.wpilibj2.command.StartEndCommand
 import edu.wpi.first.wpilibj2.command.button.JoystickButton
 import frc.team449.RobotContainerBase
 import frc.team449.control.auto.AutoRoutine
@@ -162,18 +161,16 @@ class RobotContainer2022() : RobotContainerBase() {
 
   val spitterMotor = createSparkMax(
     "Spitter",
-    12,
+    9,
     NEOEncoder.creator(
       1.0,
       1.0
     ),
   )
 
-  //shooterMotor is the motor on the hood, spitterMotor is the motor at the very top
-
   val shooterMotor = createSparkMax(
     "Shooter",
-    8,
+    12,
     NEOEncoder.creator(
       1.0,
       1.0
@@ -214,6 +211,7 @@ class RobotContainer2022() : RobotContainerBase() {
     shooterVelocity,
     intakeVelocity,
     spitVelocity,
+    motorFF,
     intakePiston,
     hoodPiston
   )
@@ -222,16 +220,45 @@ class RobotContainer2022() : RobotContainerBase() {
     // runs intake motor with positive
     JoystickButton(
       driveController,
-      XboxController.Button.kA.value).whenPressed(
+      XboxController.Button.kA.value
+    ).whenHeld(
       InstantCommand(roboCargo::runIntake)
     ).whenReleased(
       InstantCommand(roboCargo::stopIntake)
     )
-    JoystickButton(driveController,
-      XboxController.Button.kX.value).whenPressed(
+
+    JoystickButton(
+      driveController,
+      XboxController.Button.kX.value
+    ).whenHeld(
       InstantCommand(roboCargo::runIntakeReverse)
     ).whenReleased(
       InstantCommand(roboCargo::stopIntake)
+    )
+
+    // shooter commands
+    JoystickButton(
+      driveController,
+      XboxController.Button.kStart.value
+    ).whenHeld(
+      InstantCommand(roboCargo::shoot)
+    ).whenReleased(
+      InstantCommand(roboCargo::stopShoot)
+    )
+
+    // deploy and retract hood and intake
+    JoystickButton(
+      driveController,
+      XboxController.Button.kB.value
+    ).whenPressed(
+      InstantCommand(roboCargo::changeHoodState)
+    )
+
+    JoystickButton(
+      driveController,
+      XboxController.Button.kY.value
+    ).whenPressed(
+      InstantCommand(roboCargo::changeIntakeState)
     )
   }
 

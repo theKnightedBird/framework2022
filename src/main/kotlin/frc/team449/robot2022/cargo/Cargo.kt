@@ -1,7 +1,7 @@
 package frc.team449.robot2022.cargo
 
 // import edu.wpi.first.math.controller.PIDController
-// import edu.wpi.first.math.controller.SimpleMotorFeedforward
+import edu.wpi.first.math.controller.SimpleMotorFeedforward
 import edu.wpi.first.wpilibj.DoubleSolenoid
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.system.motor.WrappedMotor
@@ -15,13 +15,15 @@ class Cargo(
   // replacing the motor voltage bc idt we ever need a voltage but we do need two separate speed for spitting and intaking
   var spitterDesiredVelocityIntake: Double,
   var spitterDesiredVelocitySpit: Double,
-  // val motor: SimpleMotorFeedforward,
+  val motor: SimpleMotorFeedforward,
   // val shooterPIDController: PIDController,
-  val deployIntake: DoubleSolenoid,
-  val deployHood: DoubleSolenoid
+  val intake: DoubleSolenoid,
+  val hood: DoubleSolenoid
 ) : SubsystemBase() {
 
   private var flywheelOn: Boolean = false
+  private var intakeDeployed: Boolean = false
+  private var hoodDeployed: Boolean = false
 
   // val trueDesiredVelocity: Double = spitterDesiredVelocity
   // why is trueDesiredVelocity needed if it's the same thing as spitterDesiredVelocity
@@ -42,38 +44,61 @@ class Cargo(
   }
 
   fun deployIntake() {
-    deployIntake.set(DoubleSolenoid.Value.kReverse)
+    intake.set(DoubleSolenoid.Value.kReverse)
   }
 
   fun retractIntake() {
-    deployIntake.set(DoubleSolenoid.Value.kForward)
+    intake.set(DoubleSolenoid.Value.kForward)
+  }
+
+  fun changeIntakeState() {
+    if (intakeDeployed) {
+      retractIntake()
+      intakeDeployed = false
+    } else {
+      deployIntake()
+      intakeDeployed = true
+    }
   }
 
   // deploy hood increases shooting height
   fun deployHood() {
-    deployHood.set(DoubleSolenoid.Value.kReverse)
+    hood.set(DoubleSolenoid.Value.kForward)
   }
 
   fun retractHood() {
-    deployHood.set(DoubleSolenoid.Value.kForward)
+    hood.set(DoubleSolenoid.Value.kReverse)
   }
 
-  override fun periodic() {
-    if (flywheelOn) {
-      shooterMotor.set(shooterDesiredVelocity)
-      spitterMotor.set(spitterDesiredVelocitySpit)
+  fun changeHoodState() {
+    if (hoodDeployed) {
+      retractHood()
+      hoodDeployed = false
+    } else {
+      deployHood()
+      hoodDeployed = true
     }
   }
 
+  override fun periodic() {
 //    if (flywheelOn) {
-//      spitterMotor.setVoltage(
-//        motor.calculate(spitterDesiredVelocitySpit) + shooterPIDController.calculate(
-//          spitterMotor.velocity,
-//          spitterDesiredVelocitySpit
-//        )
-//      )
+//      shooterMotor.set(shooterDesiredVelocity)
+//      spitterMotor.set(spitterDesiredVelocitySpit)
 //    }
-  // the above was replaced with "spitterMotor.set(spitterDesiredVelocity)"
+//
+
+    // feedforward for shooting, replaced the above code
+    if (flywheelOn) {
+
+      shooterMotor.setVoltage(
+        motor.calculate(shooterDesiredVelocity)
+      )
+
+      spitterMotor.setVoltage(
+        motor.calculate(spitterDesiredVelocitySpit)
+      )
+    }
+  }
 
   fun shoot() {
     flywheelOn = true
