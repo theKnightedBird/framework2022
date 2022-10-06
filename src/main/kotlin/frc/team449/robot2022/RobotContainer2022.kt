@@ -5,6 +5,9 @@ import com.revrobotics.CANSparkMaxLowLevel
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.SimpleMotorFeedforward
 import edu.wpi.first.math.filter.SlewRateLimiter
+import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.wpilibj.*
 import edu.wpi.first.wpilibj.RobotBase.isReal
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
@@ -19,6 +22,7 @@ import frc.team449.system.encoder.AbsoluteEncoder
 import frc.team449.system.encoder.NEOEncoder
 import frc.team449.system.motor.createSparkMax
 import io.github.oblarg.oblog.annotations.Log
+import org.photonvision.PhotonCamera
 import kotlin.math.abs
 
 class RobotContainer2022() : RobotContainerBase() {
@@ -175,12 +179,29 @@ class RobotContainer2022() : RobotContainerBase() {
     chooser.setDefaultOption("Example Auto", exampleAuto.routine())
     return chooser
   }
+  val targetPose = Pose2d(Translation2d(3.0, 3.0), Rotation2d(180.0))
+
+  private var camera = PhotonCamera("Logitech_BRIO")
 
   override fun teleopInit() {
-    // todo Add button bindings here
+    // todo Add button bindings
+    camera.driverMode = false
   }
 
+  override fun robotInit() {
+    super.robotInit()
+    camera = PhotonCamera("Logitech_BRIO")
+  }
   override fun robotPeriodic() {
+    field.getObject("Target").pose = Pose2d(Translation2d(3.0, 3.0), Rotation2d.fromDegrees(180.0))
+    if (camera.latestResult.hasTargets()) {
+      val target = camera.latestResult.bestTarget
+      val toTarget = target.cameraToTarget
+      drive.localize(
+        Pose2d(Translation2d(toTarget.x, toTarget.y), -toTarget.rotation.toRotation2d()),
+        field.getObject("Target").pose
+      )
+    }
   }
 
   override fun simulationInit() {

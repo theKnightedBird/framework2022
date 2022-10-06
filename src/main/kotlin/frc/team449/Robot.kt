@@ -1,5 +1,6 @@
 package frc.team449
 
+import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.TimedRobot
@@ -23,6 +24,9 @@ class Robot : TimedRobot() {
     if (RobotBase.isSimulation()) {
       // Don't complain about joysticks if there aren't going to be any
       DriverStation.silenceJoystickConnectionWarning(true)
+      val instance = NetworkTableInstance.getDefault()
+      instance.stopServer()
+      instance.startClient("localhost")
     }
 
     robotContainer.robotInit()
@@ -61,6 +65,7 @@ class Robot : TimedRobot() {
     if (autoCommand != null) {
       CommandScheduler.getInstance().cancel(autoCommand)
     }
+
     robotContainer.teleopInit()
   }
 

@@ -83,6 +83,13 @@ open class SwerveDrive(
     this.set(ChassisSpeeds(0.0, 0.0, 0.0))
   }
 
+  fun localize(toTarget: Pose2d, target: Pose2d) {
+    val x = target.x - toTarget.x
+    val y = target.y - toTarget.y
+    val rot = target.rotation - toTarget.rotation + Rotation2d.fromDegrees(90.0)
+
+    this.pose = Pose2d(x, y, rot)
+  }
   override fun periodic() {
     desiredSpeedsX = desiredSpeeds.vxMetersPerSecond
     desiredSpeedsY = desiredSpeeds.vyMetersPerSecond
@@ -101,14 +108,14 @@ open class SwerveDrive(
       this.modules[i].state = desiredModuleStates[i]
     }
 
+    for (module in modules)
+      module.update()
+
     this.odometry.update(
       heading,
       *this.modules
         .map { it.state }.toTypedArray()
     )
-
-    for (module in modules)
-      module.update()
 
     actualSpeeds = kinematics.toChassisSpeeds(
       *this.modules
